@@ -49,7 +49,7 @@ Confira o repositório do App Mobile para mais informações: [Link do repositó
 #### Recursos desenvolvidos e futuros
 
 - [x] CRUD das Perguntas
-- [ ] Persistenciua de dados em Database SQL
+- [ ] Persistencia de dados em Database SQL
 - [ ] Criação de Migrations do DB
 - [ ] Validação de dados de entrada
 - [ ] Ajustes para rodar em Docker
@@ -88,7 +88,7 @@ Você também pode usar o [Insomnia][insomnia] e importar o [Insomnia file](./in
 
 #### Insights
 
-Você também pode conferir alguns insights e outros dados relatados durante o desenvolvimento em [Insights.md](./.github/INSIGHTS.md)
+Você também pode conferir alguns insights e outros dados relatados durante o desenvolvimento em [Insights.md](./.github/INSIGHTS.MD)
 
 ## Project Tree
 
