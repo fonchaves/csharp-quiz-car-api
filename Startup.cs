@@ -22,7 +22,10 @@ namespace QuizCarApi
     {
       services.AddDbContext<QuestionContext>(opt =>
           // opt.UseSqlServer() // TODO: USe SQL Server
-          opt.UseInMemoryDatabase("QuestionList"));
+          opt.UseInMemoryDatabase("QuestionDB"));
+
+      // This method improve performance on connections in DB
+      services.AddScoped<QuestionContext, QuestionContext>();
       services.AddControllers();
     }
 

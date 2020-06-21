@@ -125,3 +125,4 @@
 /Users/leanbook/Projects/zalppy-challenge/QuizCarApi/obj/Debug/netcoreapp3.1/QuizCarApi.dll
 /Users/leanbook/Projects/zalppy-challenge/QuizCarApi/obj/Debug/netcoreapp3.1/QuizCarApi.pdb
 /Users/leanbook/Projects/zalppy-challenge/QuizCarApi/obj/Debug/netcoreapp3.1/QuizCarApi.genruntimeconfig.cache
+/Users/leanbook/Projects/zalppy-challenge/QuizCarApi/bin/Debug/netcoreapp3.1/insomnia-calls.json

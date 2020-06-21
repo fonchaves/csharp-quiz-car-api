@@ -11,26 +11,37 @@ namespace QuizCarApi.Controllers
   [ApiController]
   public class QuestionItemsController : ControllerBase
   {
+    /** Old Approach: EF < 3.0
+
     private readonly QuestionContext _context;
 
     public QuestionItemsController(QuestionContext context)
     {
       _context = context;
     }
+    */
 
     // GET: api/QuestionItems
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<QuestionItemDTO>>> GetQuestionItems()
+    public async Task<ActionResult<IEnumerable<QuestionItemDTO>>> GetQuestionItems(
+      [FromServices] QuestionContext context)
     {
-      // return await _context.QuestionItems.ToListAsync();
-      return await _context.QuestionItems.Select(x => ItemToDTO(x)).ToListAsync();
+      return await context.QuestionItems
+        // .Include(item => item.Options)
+        .AsNoTracking()  // To don't create Proxies of object
+        .Select(x => ItemToDTO(x))
+        .ToListAsync();
     }
 
     // GET: api/QuestionItems/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<QuestionItemDTO>> GetQuestionItem(long id)
+    public async Task<ActionResult<QuestionItemDTO>> GetQuestionItem(
+      [FromServices] QuestionContext context,
+      long id)
     {
-      var questionItem = await _context.QuestionItems.FindAsync(id);
+      var questionItem = await context.QuestionItems
+        .AsNoTracking()
+        .FirstOrDefaultAsync(item => item.Id == id);
 
       if (questionItem == null)
       {
@@ -41,34 +52,44 @@ namespace QuizCarApi.Controllers
     }
 
     // PUT: api/QuestionItems/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to, for
-    // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutQuestionItem(long id, QuestionItemDTO questionItemDTO)
+    public async Task<IActionResult> PutQuestionItem(
+      [FromServices] QuestionContext context,
+      long id,
+      [FromBody] QuestionItemDTO questionItemDTO)
     {
       if (id != questionItemDTO.Id)
       {
         return BadRequest();
       }
-      var questionItem = await _context.QuestionItems.FindAsync(id);
+      var questionItem = await context.QuestionItems.FindAsync(id);
       if (questionItem == null)
       {
         return NotFound();
       }
-      // _context.Entry(questionItem).State = EntityState.Modified;
 
       questionItem.Question = questionItemDTO.Question;
       questionItem.Options = questionItemDTO.Options;
       questionItem.CorrectQuestion = questionItemDTO.CorrectQuestion;
       questionItem.KnowMore = questionItemDTO.KnowMore;
 
+      if (ModelState.IsValid)
+      {
+        context.QuestionItems.Add(questionItem);
+        await context.SaveChangesAsync();
+      }
+      else
+      {
+        return BadRequest(ModelState);
+      }
+
       try
       {
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
       }
       catch (DbUpdateConcurrencyException)
       {
-        if (!QuestionItemExists(id))
+        if (!QuestionItemExists(context, id))
         {
           return NotFound();
         }
@@ -82,11 +103,12 @@ namespace QuizCarApi.Controllers
     }
 
     // POST: api/QuestionItems
-    // To protect from overposting attacks, enable the specific properties you want to bind to, for
-    // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
     [HttpPost]
-    public async Task<ActionResult<QuestionItemDTO>> PostQuestionItem(QuestionItemDTO questionItemDTO)
+    public async Task<ActionResult<QuestionItemDTO>> PostQuestionItem(
+      [FromServices] QuestionContext context,
+      [FromBody] QuestionItemDTO questionItemDTO)
     {
+
       var questionItem = new QuestionItem
       {
         Id = questionItemDTO.Id,
@@ -96,11 +118,24 @@ namespace QuizCarApi.Controllers
         KnowMore = questionItemDTO.KnowMore,
       };
 
+      if (ModelState.IsValid)
+      {
+        context.QuestionItems.Add(questionItem);
+      }
+      else
+      {
+        return BadRequest(ModelState);
+      }
 
-      _context.QuestionItems.Add(questionItem);
-      await _context.SaveChangesAsync();
+      try
+      {
+        await context.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        throw;
+      }
 
-      // return CreatedAtAction("GetQuestionItem", new { id = questionItemDTO.Id }, questionItemDTO);
       return CreatedAtAction(
         nameof(GetQuestionItem),
         new { id = questionItem.Id },
@@ -110,23 +145,27 @@ namespace QuizCarApi.Controllers
 
     // DELETE: api/QuestionItems/5
     [HttpDelete("{id}")]
-    public async Task<ActionResult<QuestionItem>> DeleteQuestionItem(long id)
+    public async Task<ActionResult<QuestionItem>> DeleteQuestionItem(
+      [FromServices] QuestionContext context,
+      long id)
     {
-      var questionItem = await _context.QuestionItems.FindAsync(id);
+      var questionItem = await context.QuestionItems.FindAsync(id);
       if (questionItem == null)
       {
         return NotFound();
       }
 
-      _context.QuestionItems.Remove(questionItem);
-      await _context.SaveChangesAsync();
+      context.QuestionItems.Remove(questionItem);
+      await context.SaveChangesAsync();
 
       return questionItem;
     }
 
-    private bool QuestionItemExists(long id)
+    private bool QuestionItemExists(
+      [FromServices] QuestionContext context,
+      long id)
     {
-      return _context.QuestionItems.Any(e => e.Id == id);
+      return context.QuestionItems.Any(e => e.Id == id);
     }
 
     private static QuestionItemDTO ItemToDTO(QuestionItem questionItem) =>

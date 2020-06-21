@@ -49,9 +49,9 @@ Confira o repositório do App Mobile para mais informações: [Link do repositó
 #### Recursos desenvolvidos e futuros
 
 - [x] CRUD das Perguntas
+- [x] Validação de dados de entrada
 - [ ] Persistencia de dados em Database SQL
 - [ ] Criação de Migrations do DB
-- [ ] Validação de dados de entrada
 - [ ] Ajustes para rodar em Docker
 - [ ] Aplicação de Testes unitários
 - [ ] Registro e autenticação (Opcional)
